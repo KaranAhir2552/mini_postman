@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 const Register: React.FC = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    // name: '',
+    username: '',
     email: '',
     password: '',
   });
@@ -29,8 +29,7 @@ const Register: React.FC = () => {
     try {
       setLoading(true);
 
-      const response = await postAPI<any>(AuthApi.REGISTER, formData);
-
+      const response = await postAPI(AuthApi.REGISTER, formData);
       console.log('Register Response:', response.data);
 
       // STORE TOKEN IF RECEIVED
@@ -53,20 +52,18 @@ const Register: React.FC = () => {
         <h1 className="text-3xl font-bold text-center mb-6">Register</h1>
 
         <form className="space-y-5" onSubmit={handleRegister}>
-          {/* <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Name
-            </label>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
 
             <input
               type="text"
-              name="name"
-              value={formData.name}
+              name="username"
+              value={formData.username}
               onChange={handleChange}
-              placeholder="Enter your name"
+              placeholder="Enter your Username"
               className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-black"
             />
-          </div> */}
+          </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>

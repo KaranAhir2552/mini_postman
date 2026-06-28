@@ -23,20 +23,24 @@ export const login: RequestHandler = asyncHandler(async (req: Request, res: Resp
   res.json({ existingUser, token });
 });
 export const register: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
-  const { email, password } = req.body;
+  const { email, password, username } = req.body;
   // Handle registration logic here (e.g., save user to database)
-  if (!email || !password) {
+  if (!email || !password || !username) {
     throw new ApiError(400, 'Email and password are required');
   }
   const passwordHash = await bcrypt.hash(password, 10);
 
   // find user already exists in database, if so throw error
   // if not, create user in database
+  const isUserExist = await prisma.default.user.findUnique({ where: { username } });
+  if (isUserExist) {
+    throw new ApiError(400, 'Username Already exists');
+  }
   const existingUser = await prisma.default.user.findUnique({ where: { email } });
   if (existingUser) {
     throw new ApiError(400, 'User already exists');
   }
-  const user = await prisma.default.user.create({ data: { email, passwordHash } });
+  const user = await prisma.default.user.create({ data: { email, passwordHash, username } });
 
   const token = jwt.sign({ email, id: user.id }, env.JWT_SECRET!, { expiresIn: '7d' });
   res.json({ user, token });

@@ -1,9 +1,3 @@
-import React from 'react'
+import Workspace from './workspace';
 
-function Pages() {
-  return (
-    <div>Pages</div>
-  )
-}
-
-export default Pages
+export { Workspace };

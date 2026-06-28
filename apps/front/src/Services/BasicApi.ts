@@ -1,4 +1,4 @@
-// src/api/BasicApi.ts
+import axios, { AxiosResponse } from 'axios';
 
 const BASE_URL = 'http://localhost:4000';
 
@@ -11,28 +11,31 @@ const getToken = () => {
   return localStorage.getItem('token');
 };
 
-const getHeaders = () => {
+const api = axios.create({
+  baseURL: BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Request interceptor (auto attach token)
+api.interceptors.request.use((config) => {
   const token = getToken();
 
-  return {
-    'Content-Type': 'application/json',
-    ...(token && {
-      Authorization: `Bearer ${token}`,
-    }),
-  };
-};
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
 
-export const getAPI = async <T>(endpoint: string): Promise<ApiResponse<T>> => {
+  return config;
+});
+
+// GET API
+export const getAPI = async <T = any>(endpoint: string): Promise<ApiResponse<T>> => {
   try {
-    const response = await fetch(`${BASE_URL}${endpoint}`, {
-      method: 'GET',
-      headers: getHeaders(),
-    });
-
-    const data = await response.json();
+    const response: AxiosResponse<T> = await api.get(endpoint);
 
     return {
-      data,
+      data: response.data,
       status: response.status,
     };
   } catch (error) {
@@ -41,22 +44,53 @@ export const getAPI = async <T>(endpoint: string): Promise<ApiResponse<T>> => {
   }
 };
 
-export const postAPI = async <T>(endpoint: string, payload: unknown): Promise<ApiResponse<T>> => {
+// POST API
+export const postAPI = async <T = any>(
+  endpoint: string,
+  payload: unknown
+): Promise<ApiResponse<T>> => {
   try {
-    const response = await fetch(`${BASE_URL}${endpoint}`, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify(payload),
-    });
-
-    const data = await response.json();
+    const response: AxiosResponse<T> = await api.post(endpoint, payload);
 
     return {
-      data,
+      data: response.data,
       status: response.status,
     };
   } catch (error) {
     console.error('POST API Error:', error);
+    throw error;
+  }
+};
+
+// PUT API
+export const putAPI = async <T = any>(
+  endpoint: string,
+  payload: unknown
+): Promise<ApiResponse<T>> => {
+  try {
+    const response: AxiosResponse<T> = await api.put(endpoint, payload);
+
+    return {
+      data: response.data,
+      status: response.status,
+    };
+  } catch (error) {
+    console.error('PUT API Error:', error);
+    throw error;
+  }
+};
+
+// DELETE API
+export const deleteAPI = async <T = any>(endpoint: string): Promise<ApiResponse<T>> => {
+  try {
+    const response: AxiosResponse<T> = await api.delete(endpoint);
+
+    return {
+      data: response.data,
+      status: response.status,
+    };
+  } catch (error) {
+    console.error('DELETE API Error:', error);
     throw error;
   }
 };
